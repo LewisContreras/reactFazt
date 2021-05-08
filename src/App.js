@@ -1,47 +1,66 @@
-import React from 'react';
+import React, {Component} from 'react';
+import { BrowserRouter as Router, Route, Link } from "react-router-dom";
+
 import './App.css';
+import Tasks from "./components/Tasks";
+import tasks from "./sample/tasks.json";
+import TaskForm from "./components/TaskForm";
+import Posts from './components/Posts'
 
-// function Helloworld(props) {
-//   return (
-//     <div id="hello">{props.myText}</div>
-//   )
-// }
 
-class Helloworld extends React.Component{
+class App extends Component{
 
-  state ={
-    show: true
+  state = {
+    tasks: tasks
   }
 
-  toggleShow = ()=>{
-    this.setState({show: !this.state.show})
+  addTask = (title, description)=>{
+    const newTask = {
+      title: title,
+      description: description,
+      id: this.state.tasks.length
+    }
+    this.setState({
+      tasks: [...this.state.tasks, newTask]
+    })
+  }
+
+  deleteTask = (id)=>{
+    const newTasks = this.state.tasks.filter(task => task.id !== id);
+    this.setState({
+      tasks: newTasks
+    })
+  }
+
+  checkDone = id =>{
+    const newTasks = this.state.tasks.map(task =>{
+      if (task.id === id) {
+        task.done = !task.done
+      }
+      return task;
+    })
+    this.setState({tasks: newTasks})
   }
 
   render(){
-    if(this.state.show){
-      return (
-        <div id="hello">
-          <h3>{this.props.myText}</h3>
-          <button onClick={this.toggleShow} >Toggle show</button>
-        </div>
-        
-      )
-    }else{
-      return <h1>
-        There are no elements
-        <button onClick={this.toggleShow}>Toggle show</button>
-        </h1>
-    }
-    
-  }
-}
+    return <div>
+      <Router>
 
-function App() {
-  return (
-    <div>This is my component: 
-      <Helloworld myText="Hello worldcito"/> <Helloworld myText="Holaaaaa"/> 
+      <Link to="/" >Home</Link>
+      <br/>
+      <Link to="/posts" >Posts</Link>
+      <Route exact path="/" render={()=>{
+        return <div>
+          <TaskForm addTask={this.addTask} />
+        <Tasks tasks={this.state.tasks} deleteTask={this.deleteTask} checkDone={this.checkDone} />
+        </div>
+      }} >
+
+      </Route>
+      <Route path="/posts" component={Posts} />
+      </Router>
     </div>
-  );
+  }
 }
 
 export default App;
